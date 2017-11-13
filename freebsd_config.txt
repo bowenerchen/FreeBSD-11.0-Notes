@@ -1,7 +1,9 @@
 =====================================================
+
 memstick镜像可以用于U盘安装FreeBSD系统
 其他的dvd和disc好像用dd写到U盘后,会启动不了
 =====================================================
+
 普通用户获取sudo权限：
 pkg install sudo vim 
 vi /etc/group 
@@ -9,10 +11,13 @@ wheel:*:0:root,UserName 注意root与UserName用户之间是使用的逗号隔�
 vim /usr/local/etc/sudoers
 $USERNAME ALL=(ALL) ALL
 =====================================================
+
 让root用户远程ssh登录的方法
 vi /etc/ssh/sshd_config  
 PermitRootLogin yes
 PasswordAuthentication yes
+GSSAPIAuthentication no
+
 
 设置IP地址、网关
 vim  /etc/rc.conf   #编辑
@@ -30,10 +35,26 @@ nameserver 8.8.4.4
 /etc/netstart  
 重新启动ssh
 /etc/rc.d/sshd restart
+
+关机:
+shutdown -p now 马上关机并且关闭电源
+shutdown -h now 马上关机但是不关闭电源
+shutdown -r now 立即重启系统
 =====================================================
+
 在 /etc/csh.cshrc添加：
 setenv PACKAGEROOT ftp://ftp.freebsdchina.org
+setenv PACKAGESITE http://mirrors.aliyun.com/freebsd/releases/amd64/11.0-RELEASE/packages/Latest/
+
+vim /etc/portsnap.conf #编辑文件   
+SERVERNAME=portsnap.cn.FreeBSD.org #更改服务器为国内镜像  
+portsnap fetch -s portsnap.cn.freebsd.org #安装ports  
+portsnap fetch extract #下载ports快照  
+portsnap update #更新  
+vi /etc/make.conf #编辑文件，添加下面代码 
+MASTER_SITE_BACKUP?=http://mirrors.163.com/FreeBSD/distfiles/${DIST_SUBDIR}/ MASTER_SITE_OVERRIDE?=${MASTER_SITE_BACKUP}
 =====================================================
+
 vim /.cshrc
 set prompt="[%n@FreeBSD %c]# "
 alias ls ls -GF
@@ -41,18 +62,38 @@ vim ~/.profile
 PS1="[`whoami`@BSD \W]\\$"
 alias ls='ls -GF'
 =====================================================
+
 1)停止ipfw防火墙： 
 ipfw disable firewall  
 /etc/rc.d/ipfw stop
+
 2)开启ipfw防火墙：
 ipfw enable firewall  
 /etc/rc.d/ipfw start
+
 3）如何查看ipfw是否在运行
 方法一:通过ipfw -a list 不断的去看包的数量
 方法二:sysctl -a | grep net.inet.ip.fw.enable
 如果状态是1表示是开启，0为关闭
 
 =====================================================
+
 虚拟机环境中NAT模式下用ssh登录的方法:
 打开virtualbox 的设置窗口 -> 网络 -> Adapter1 启用 网络连接 -> 连接方式：Nat -> 接入网线 -> Port Forwarding
 把 宿主机 的 IP:Port  192.168.56.1:2222 映射到 客户机的 10.0.2.15:22  .
+
+=====================================================
+
+切换sh为bash
+chsh -s /usr/local/bin/bash
+vim ~/.profile
+alias ls='ls -GF'
+alias ll='ls -al'
+export PS1="\[\e]0;\u@\h \w\a\]\[\033[01;32m\]\u@\h\[\033[00m\] \[\033[01;34m\]\W $\[\033[00m\] "
+export PS1="\[\e]0;\u@\h \w\a\]\[\033[01;32m\]\u@\h\[\033[00m\] \[\033[01;34m\]\W #\[\033[00m\] "
+对于root用户来说,ls会显示隐藏文件
+对于普通用户来说,ls不会显示隐藏文件
+建议直接使用普通用户开发程序
+
+=====================================================
+pkg install cmake git go bash vim sudo 
