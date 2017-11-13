@@ -1,0 +1,58 @@
+=====================================================
+memstick镜像可以用于U盘安装FreeBSD系统
+其他的dvd和disc好像用dd写到U盘后,会启动不了
+=====================================================
+普通用户获取sudo权限：
+pkg install sudo vim 
+vi /etc/group 
+wheel:*:0:root,UserName 注意root与UserName用户之间是使用的逗号隔开
+vim /usr/local/etc/sudoers
+$USERNAME ALL=(ALL) ALL
+=====================================================
+让root用户远程ssh登录的方法
+vi /etc/ssh/sshd_config  
+PermitRootLogin yes
+PasswordAuthentication yes
+
+设置IP地址、网关
+vim  /etc/rc.conf   #编辑
+ifconfig_em0="inet 192.168.21.173  netmask 255.255.255.0"  #设置IP地址，子网掩码
+defaultrouter="192.168.21.2"   #设置网关
+hostname="FreeBSD"   #设置主机名字
+sshd_enable="YES"
+
+设置DNS
+vim /etc/resolv.conf  #编辑
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+
+#重启网络 
+/etc/netstart  
+重新启动ssh
+/etc/rc.d/sshd restart
+=====================================================
+在 /etc/csh.cshrc添加：
+setenv PACKAGEROOT ftp://ftp.freebsdchina.org
+=====================================================
+vim /.cshrc
+set prompt="[%n@FreeBSD %c]# "
+alias ls ls -GF
+vim ~/.profile
+PS1="[`whoami`@BSD \W]\\$"
+alias ls='ls -GF'
+=====================================================
+1)停止ipfw防火墙： 
+ipfw disable firewall  
+/etc/rc.d/ipfw stop
+2)开启ipfw防火墙：
+ipfw enable firewall  
+/etc/rc.d/ipfw start
+3）如何查看ipfw是否在运行
+方法一:通过ipfw -a list 不断的去看包的数量
+方法二:sysctl -a | grep net.inet.ip.fw.enable
+如果状态是1表示是开启，0为关闭
+
+=====================================================
+虚拟机环境中NAT模式下用ssh登录的方法:
+打开virtualbox 的设置窗口 -> 网络 -> Adapter1 启用 网络连接 -> 连接方式：Nat -> 接入网线 -> Port Forwarding
+把 宿主机 的 IP:Port  192.168.56.1:2222 映射到 客户机的 10.0.2.15:22  .
